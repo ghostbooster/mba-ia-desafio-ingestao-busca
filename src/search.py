@@ -1,7 +1,8 @@
 import os
 from embeding_model import get_embedding_model
-from langchain_postgres import PGVector
+from chat_model import get_chat_model
 from langchain_core.prompts import ChatPromptTemplate
+from vector_store import get_store
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,36 +34,24 @@ PERGUNTA DO USUÁRIO:
 RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
-def search_prompt(question=None):
+def vetorial_search_prompt(question=None):
     embeddings = get_embedding_model()
 
-    store = PGVector(
-        embeddings=embeddings,
-        collection_name=os.getenv("PG_VECTOR_COLLECTION_NAME"),
-        connection=os.getenv("DATABASE_URL"),
-        use_jsonb=True,
-    )
+    store = get_store(embeddings)
 
     results = store.similarity_search_with_score(question, k=10)
 
-    for i, (doc, score) in enumerate(results, start=1):
-      print("="*50)
-      print(f"Resultado {i} (score: {score:.2f}):")
-      print("="*50)
+    return results
 
-      print("\nTexto:\n")
-      print(doc.page_content.strip())
+def llm_interaction(contexto=None, pergunta=None):
+    chatModel = get_chat_model()
 
-      print("\nMetadados:\n")
-      for k, v in doc.metadata.items():
-          print(f"{k}: {v}")
+    promptTemplate = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
 
-promptTemplate = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+    prompt = promptTemplate.format(
+        contexto=contexto, pergunta=pergunta
+    )
 
-prompt = promptTemplate.format(
-    contexto="Wesley", pergunta="Qual é a capital da França?"
-)
+    modelAnswer = chatModel.invoke(prompt)
 
-print(prompt)
-
-#search_prompt(prompt)
+    return modelAnswer

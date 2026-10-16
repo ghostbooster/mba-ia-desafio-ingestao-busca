@@ -1,13 +1,16 @@
-from search import search_prompt
+from search import vetorial_search_prompt, llm_interaction
 
 def main():
-    chain = search_prompt()
+    userQuestion = "xuxu"
 
-    if not chain:
-        print("Não foi possível iniciar o chat. Verifique os erros de inicialização.")
-        return
-    
-    pass
+    vetorial_search_prompt(userQuestion)
+
+    results = vetorial_search_prompt(userQuestion)
+
+    llmAnswer = llm_interaction(contexto=results, pergunta=userQuestion)
+
+    print("Resposta do modelo:")
+    print(llmAnswer.content[0].get('text', ''))
 
 if __name__ == "__main__":
     main()

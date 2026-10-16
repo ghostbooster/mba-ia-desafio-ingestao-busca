@@ -2,9 +2,9 @@ import os
 from dotenv import load_dotenv
 from loader import load_document
 from loader import split_document
-from langchain_postgres import PGVector
 from langchain_core.documents import Document
 from embeding_model import get_embedding_model
+from vector_store import get_store
 import time
 
 load_dotenv()
@@ -28,12 +28,7 @@ def ingest_pdf():
 
     ids = [f"doc-{i}" for i in range(len(enriched))]
 
-    store = PGVector(
-        embeddings=embeddings,
-        collection_name=os.getenv("PG_VECTOR_COLLECTION_NAME"),
-        connection=os.getenv("DATABASE_URL"),
-        use_jsonb=True,
-    )
+    store = get_store(embeddings)
 
     batch_size = 5
 
