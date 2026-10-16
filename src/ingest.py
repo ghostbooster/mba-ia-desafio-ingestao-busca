@@ -2,10 +2,9 @@ import os
 from dotenv import load_dotenv
 from loader import load_document
 from loader import split_document
-#from langchain_openai import OpenAIEmbeddings
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_postgres import PGVector
 from langchain_core.documents import Document
+from embeding_model import get_embedding_model
 import time
 
 load_dotenv()
@@ -17,7 +16,7 @@ def ingest_pdf():
 
     splitted_docs = split_document(docs)
 
-    embeddings = GoogleGenerativeAIEmbeddings(model=os.getenv("GOOGLE_EMBEDDING_MODEL","gemini-embedding-001"))
+    embeddings = get_embedding_model()
 
     enriched = [
         Document(

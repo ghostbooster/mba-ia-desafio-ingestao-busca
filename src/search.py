@@ -1,3 +1,11 @@
+import os
+from embeding_model import get_embedding_model
+from langchain_postgres import PGVector
+from langchain_core.prompts import ChatPromptTemplate
+from dotenv import load_dotenv
+
+load_dotenv()
+
 PROMPT_TEMPLATE = """
 CONTEXTO:
 {contexto}
@@ -26,4 +34,35 @@ RESPONDA A "PERGUNTA DO USUÁRIO"
 """
 
 def search_prompt(question=None):
-    pass
+    embeddings = get_embedding_model()
+
+    store = PGVector(
+        embeddings=embeddings,
+        collection_name=os.getenv("PG_VECTOR_COLLECTION_NAME"),
+        connection=os.getenv("DATABASE_URL"),
+        use_jsonb=True,
+    )
+
+    results = store.similarity_search_with_score(question, k=10)
+
+    for i, (doc, score) in enumerate(results, start=1):
+      print("="*50)
+      print(f"Resultado {i} (score: {score:.2f}):")
+      print("="*50)
+
+      print("\nTexto:\n")
+      print(doc.page_content.strip())
+
+      print("\nMetadados:\n")
+      for k, v in doc.metadata.items():
+          print(f"{k}: {v}")
+
+promptTemplate = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+
+prompt = promptTemplate.format(
+    contexto="Wesley", pergunta="Qual é a capital da França?"
+)
+
+print(prompt)
+
+#search_prompt(prompt)
