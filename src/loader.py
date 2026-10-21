@@ -13,5 +13,3 @@ def split_document(docs,chunk_size=1000, chunk_overlap=150):
     return chunks
 
 docs = load_document("./document.pdf")
-
-print(split_document(docs)[0])
