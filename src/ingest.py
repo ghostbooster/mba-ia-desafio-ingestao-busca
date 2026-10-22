@@ -4,6 +4,8 @@ from loader import load_document
 from loader import split_document
 from sqlalchemy import text
 from langchain_core.documents import Document
+from embeding_model import get_embedding_model
+from vector_store import get_store
 
 import time
 
@@ -114,4 +116,6 @@ def delete_documents(source: str, engine=None) -> int:
         return result.rowcount
 
 if __name__ == "__main__":
-    ingest_pdf()
+    embeddings = get_embedding_model()
+    store = get_store(embeddings)
+    ingest_pdf(store)
